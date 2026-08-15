@@ -72,9 +72,7 @@ terms:
 
   - term: label
     group: graph model
-    doc: A name a node carries, at most sixty four of them, the first being its node table's own name and the rest declared by `ALTER TABLE ... ADD LABEL` and assigned by `SET`.
-    instead:
-      - tag
+    doc: A name a node carries, at most sixty four of them, the first being its node table's own name and the rest declared by `ALTER TABLE ... ADD LABEL` and assigned by `SET`. Not a tag, which in this codebase is a union's discriminant and a different thing entirely.
 
   - term: property
     group: graph model
@@ -216,11 +214,11 @@ terms:
 
   - term: API model
     group: clients
-    doc: `docs/api/model.json` in tamnd/zu, extracted from rustdoc, from which the reference pages, the SDK feature matrix, `zu.h` and the completeness check are all generated.
+    doc: The file `docs/api/model.json` in tamnd/zu, extracted from rustdoc, from which the reference pages, the SDK feature matrix, `zu.h` and the completeness check are all generated.
 
   - term: API map
     group: clients
-    doc: `api-map.toml`, one per binding repository, saying what that binding owes every entity in the API model, each classified tier 1, tier 2 or tier 3.
+    doc: The file `api-map.toml`, one per binding repository, saying what that binding owes every entity in the API model, each classified tier 1, tier 2 or tier 3.
 
   - term: conformance corpus
     group: clients
@@ -228,4 +226,4 @@ terms:
 
   - term: conformance declaration
     group: clients
-    doc: `conformance.toml` at the root of tamnd/zu, which is what the engine declares it can do for the gql compat harness. It shares a word with the corpus and nothing else, so name it in full wherever both appear.
+    doc: The file `conformance.toml` at the root of tamnd/zu, which is what the engine declares it can do for the gql compat harness. It shares a word with the corpus and nothing else, so name it in full wherever both appear.
