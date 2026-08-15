@@ -1,0 +1,231 @@
+schema: 1
+doc: The words zu uses, and the words it does not.
+
+# One table, read by every repository in the program, so that a node is
+# never a vertex on one page and a node on the next. It covers prose:
+# the guides on this site, the doc comments in tamnd/zu that become
+# reference pages, the CLI's help text, and the text of an error. It
+# does not cover identifiers, which answer to the language they are
+# written in, and it does not cover quoted material, which answers to
+# whoever said it.
+#
+# The reader is `cargo xtask terms` in tamnd/zu. It lives there because
+# the two hardest consumers, the CLI's help and the errors, are there,
+# and because a table checked by nine repositories against nine readers
+# would be nine tables.
+#
+# Each entry is a term, the group it belongs to, one sentence saying
+# what it means, and optionally the forms that must give way to it.
+# `instead` matches whole words and ignores case, except where the form
+# differs from the term only in case, which is the one place case is
+# the whole point.
+
+terms:
+  - term: zu
+    group: names
+    doc: The database, the repository and the binary, always in lower case, including at the start of a sentence, because a name that changes shape by position is two names.
+    instead:
+      - Zu
+      - ZU
+
+  - term: zudb
+    group: names
+    doc: The name every crate publishes under, because `zu` was taken on crates.io years before this existed. The repository, the binary and the file extension are unaffected.
+
+  - term: zu1
+    group: names
+    doc: The native file format and the engine that reads it, in lower case, matching the file extension a user types.
+    instead:
+      - ZU1
+
+  - term: engine
+    group: names
+    doc: The part of zu that stores and queries a graph, as opposed to a client that reaches it. There are three, zu1, sqlite and s3, and they differ in where bytes live rather than in what a query means.
+
+  - term: node
+    group: graph model
+    doc: An element of a graph, held by exactly one node table, identified to a user by that table's primary key and internally by a dense NodeId that is stable within a snapshot.
+    instead:
+      - vertex
+      - vertices
+
+  - term: edge
+    group: graph model
+    doc: A connection between two nodes, held by a rel table, directed unless its table declares otherwise, and never guaranteed unique because multi-edges are allowed.
+
+  - term: relationship type
+    group: graph model
+    doc: The name an edge carries and a pattern matches on. GQL's word rather than ours, kept because it is the one a query writes.
+
+  - term: node table
+    group: graph model
+    doc: The table a node lives in, declared by `CREATE NODE TABLE`, holding its columns, its primary key and the label set every one of its rows carries.
+    instead:
+      - vertex table
+
+  - term: rel table
+    group: graph model
+    doc: The table an edge lives in, declared by `CREATE REL TABLE`, naming the element types at its ends and the properties the edge holds.
+    instead:
+      - edge table
+      - relationship table
+
+  - term: label
+    group: graph model
+    doc: A name a node carries, at most sixty four of them, the first being its node table's own name and the rest declared by `ALTER TABLE ... ADD LABEL` and assigned by `SET`.
+    instead:
+      - tag
+
+  - term: property
+    group: graph model
+    doc: A named typed value on a node or an edge, stored as a column rather than a bag, because the model is schema-full.
+    instead:
+      - attribute
+
+  - term: primary key
+    group: graph model
+    doc: The column a user identifies a node by, unique and non null, enforced through the per table hash index at commit time. It is the only identity a client should hold across snapshots.
+
+  - term: graph
+    group: graph model
+    doc: A named set of node tables and rel tables. A table belongs to one graph, which is a field on the table rather than a list on the graph, so it cannot be in two.
+
+  - term: graph type
+    group: graph model
+    doc: The ISO 39075 description of a graph's shape, a set of element types saying what a node or an edge in it may look like, carried in the catalog beside the tables.
+
+  - term: element type
+    group: graph model
+    doc: One entry in a graph type, naming a kind, a label set, a key label set and the properties an element of that type holds.
+
+  - term: node group
+    group: storage
+    doc: The unit a table is divided into for storage and for scanning, 131,072 rows, which is what a NodeId's group and row fields address.
+    instead:
+      - row group
+
+  - term: column segment
+    group: storage
+    doc: One column of one node group, encoded and compressed on its own, which is the granularity a zone map skips and the segment cache holds.
+
+  - term: chunk
+    group: storage
+    doc: 1024 values inside a segment's mini block, which is the granularity random access lands on. It is smaller than a segment and much smaller than a node group, and the three are not interchangeable.
+
+  - term: block
+    group: storage
+    doc: The file's fixed 256 KiB allocation unit. A store that holds nothing still costs four of them, which is why `zu stat` reports the schema size separately from the data.
+
+  - term: catalog
+    group: storage
+    doc: What the file declares: table definitions, columns and types, primary keys, secondary labels, indexes, statistics and graph types. It is versioned per commit epoch and a reader uses its snapshot's copy.
+
+  - term: props directory
+    group: storage
+    doc: The per table structure that says where each column's segments are, and where a label set bitset hangs when a table declares more than its own name.
+
+  - term: CSR
+    group: storage
+    doc: The compressed sparse row adjacency, built per node group per direction, which is what a walk reads a neighbor list out of.
+
+  - term: zone map
+    group: storage
+    doc: The per segment minimum, maximum and null summary that lets a predicate skip a segment or a chunk without decoding it.
+
+  - term: checkpoint
+    group: storage
+    doc: The point at which the write ahead log is folded into the file and a new database header becomes the root, the two headers alternating so the flip is atomic.
+
+  - term: write ahead log
+    group: storage
+    doc: The sidecar a commit is durable in before a checkpoint moves it into the file. Abbreviate to WAL after the first use on a page.
+
+  - term: snapshot
+    group: transactions
+    doc: The version of the graph a reader sees, fixed at the moment its transaction began and unaffected by anything committed afterwards.
+
+  - term: epoch
+    group: transactions
+    doc: The monotonically increasing commit sequence number a snapshot is named by. It orders commits and it is not a timestamp.
+
+  - term: transaction
+    group: transactions
+    doc: A unit of work that commits or does not. Reads get one implicitly, writes are begun with `begin_write`, and there is no partial outcome.
+
+  - term: tombstone
+    group: storage
+    doc: The mark a delete leaves in place of a row. Offsets are recycled only by `VACUUM` or a re ingest, either of which may reorder, which is why a NodeId is stable within a snapshot and not across one.
+
+  - term: statement
+    group: query
+    doc: One piece of GQL text that is executed as a unit, which is what a client prepares, what a case in the conformance corpus holds, and what raises a GQLSTATUS when it fails.
+
+  - term: binder
+    group: query
+    doc: The stage that resolves names against the catalog and gives every expression a type, before anything is planned and long before anything is read.
+
+  - term: optimizer
+    group: query
+    doc: The stage that turns a bound statement into a physical plan, using the catalog's statistics. It is one component with one name, so avoid calling it the planner half the time.
+    instead:
+      - planner
+      - query planner
+
+  - term: operator
+    group: query
+    doc: One node of a physical plan, which is what `EXPLAIN (ANALYZE)` reports rows and time per.
+
+  - term: pipeline
+    group: query
+    doc: A run of operators that pass vectors to each other without materializing between them, which is the unit scheduling and the s3 engine's cold query budget both work in.
+
+  - term: vector
+    group: query
+    doc: A batch of values an operator processes at once, which is what makes execution vectorized. Not to be confused with the `VECTOR` column type, which is an embedding, so say which one on a page that has both.
+
+  - term: value
+    group: values
+    doc: One typed datum crossing the boundary between the engine and a client, which is the thing the conformance corpus exists to pin.
+
+  - term: GQLSTATUS
+    group: values
+    doc: The five character condition code a failed statement raises, taken from ISO 39075, which is the stable identity of an error and the thing a client should branch on rather than the message.
+    instead:
+      - error code
+      - status code
+
+  - term: notice
+    group: values
+    doc: A warning a statement raises while still succeeding, as a set function that dropped a null does. It never replaces a result.
+
+  - term: client
+    group: clients
+    doc: Anything that reaches the engine on a user's behalf, which covers the nine language libraries and the CLI. It is the widest of the three words here and the right one when the sentence is about all of them.
+
+  - term: SDK
+    group: clients
+    doc: One language's library as a product, the thing a user installs and a release ships, as in the Rust SDK or a tier 1 SDK.
+
+  - term: binding
+    group: clients
+    doc: The same library seen as an implementation over the C ABI, which is the right word when the sentence is about how it reaches the engine rather than about what a user installs.
+
+  - term: C ABI
+    group: clients
+    doc: The frozen interface every client except the Rust one is built on, declared by `zu.h`, which is generated from the API model and is therefore an output of the engine build.
+
+  - term: API model
+    group: clients
+    doc: `docs/api/model.json` in tamnd/zu, extracted from rustdoc, from which the reference pages, the SDK feature matrix, `zu.h` and the completeness check are all generated.
+
+  - term: API map
+    group: clients
+    doc: `api-map.toml`, one per binding repository, saying what that binding owes every entity in the API model, each classified tier 1, tier 2 or tier 3.
+
+  - term: conformance corpus
+    group: clients
+    doc: The cases in `conformance/cases` in tamnd/zu that say what a value means once it has crossed a language boundary, shipped as `conformance-<version>.tar.zst` and run by every client.
+
+  - term: conformance declaration
+    group: clients
+    doc: `conformance.toml` at the root of tamnd/zu, which is what the engine declares it can do for the gql compat harness. It shares a word with the corpus and nothing else, so name it in full wherever both appear.
