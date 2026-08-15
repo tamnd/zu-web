@@ -1,0 +1,23 @@
+name: Documentation problem
+description: A page is wrong, missing, unclear, or broken
+labels: ["documentation", "site"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+    validations:
+      required: true
+  - type: checkboxes
+    id: generated
+    attributes:
+      label: Is this a generated page?
+      description: Generated reference pages carry a generated_from field in their frontmatter and an Edit this page link pointing at tamnd/zu. Fixing one means fixing the doc comment or the registry entry there, not the page here.
+      options:
+        - label: I followed the Edit this page link and it points at this repository.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong, and what would be right
+    validations:
+      required: true

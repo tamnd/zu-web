@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Engine bug or wrong behaviour
+    url: https://github.com/tamnd/zu/issues/new/choose
+    about: If the page is right and the behaviour is wrong, file it in tamnd/zu.
+  - name: Security report
+    url: https://github.com/tamnd/zu/security/advisories/new
+    about: One embargo process for every repository. Never file a security issue publicly.
