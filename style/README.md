@@ -32,7 +32,27 @@ terms:
 | `group` | yes | The section of the glossary it belongs to. |
 | `instead` | no | Forms that must give way to the term. A term with none is here for its definition, which is the case for the three words that are close enough to be confused and different enough to keep apart. |
 
-`instead` matches whole words and ignores case, except where the form differs from the term only in case. That exception is what lets `zu` refuse `Zu` at the start of a sentence without also refusing every other capitalised word, and it is a rule rather than a flag because a flag on forty entries is thirty nine chances to set it wrong.
+## How a form is matched
+
+Four rules, all of them so that a term can be written once rather than in every shape it takes.
+
+A form matches whole words and never part of one, so `vertex` does not fire on `vertexes` or on `reverted`.
+
+The last word of a form may pick up a plural `s`, so `edge table` catches `edge tables`. Listing both would double the table for no reader's benefit.
+
+The words of a multi-word form have to be one phrase, separated by spaces or a hyphen. `row-group` is the same mistake as `row group`, and `row (group` is two phrases and not a hit.
+
+Case is ignored, except where the form differs from the term only in case. That exception is what lets `zu` refuse `Zu` at the start of a sentence without also refusing every other capitalised word, and it is a rule rather than a per entry flag because a flag on forty five entries is forty four chances to set it wrong.
+
+## When the table is wrong about a page
+
+A page that quotes somebody else, or writes about another system in that system's words, exempts the form and says which:
+
+```
+<!-- terms: allow row group, vertex -->
+```
+
+It has to name the forms, so that it can never become a blanket switch, and a form it names that the page does not contain is reported as stale. That is the same rule the API map follows for a classification of code that is gone: an exemption nobody needs is one nobody reread, and it will be the reason a real hit is missed later.
 
 ## Where the reader is
 
