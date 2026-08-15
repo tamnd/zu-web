@@ -25,6 +25,8 @@ The snippet jobs run against published artifacts, not a workspace build, which i
 
 Hand-written guides live in `src/content/docs/`. If a page has a `generated_from` field in its frontmatter, do not edit it here; fix the doc comment or the registry entry in [tamnd/zu](https://github.com/tamnd/zu) and it will regenerate. Every page carries an "Edit this page" link that resolves to whichever of the two repositories actually owns it.
 
+`style/zu/terms.yml` is the terminology table, and it is not only this site's. The guides here, the doc comments in `tamnd/zu` that become reference pages, the CLI's help and the text of an error all answer to it, so that a node is never a vertex on one page and a node on the next. `style/README.md` has the schema and the rule for adding a term.
+
 ## Where things live
 
 | What | Where |
